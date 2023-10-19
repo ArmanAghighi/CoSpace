@@ -242,17 +242,33 @@ void DoAction(int rightWheel , int leftWheel , int led)
 }
 void Game0()
 {
-    if(SupDur > 0)
-        SupDur --;
+    if (SupDur > 0)
+        SupDur--;
     else if(Dur > 0)
         Dur --;
+    else if(USFront < 12)
+    {
+        if(USLeft > USRight)
+        {
+            GetEvent(0,0,2);
+        }
+        else if(USLeft <= USRight)
+        {
+            GetEvent(0,0,3);
+        }
+    }
     else
-        GetEvent(0,10,1);
-
+        GetEvent(0,10,1);//Moving Forward Event
     switch(CurAction)
     {
         case 1:
-            DoAction(60,60,0);
+            DoAction(40,40,1);//Moving Forward Action
+            break;
+        case 2:
+            DoAction(60,-70,0);
+            break;
+        case 3:
+            DoAction(-70,60,0);
             break;
         default:
             break;
