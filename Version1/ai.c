@@ -41,6 +41,7 @@ int WheelLeft = 0;
 int WheelRight = 0;
 int LED_1 = 0;
 int MyState = 0;
+const int GloabalTrustDistance = 13;
 int AI_TeamID = 1;   //Robot Team ID. 1:Blue Ream; 2:Red Team.
 int MySMS; 
 
@@ -171,63 +172,7 @@ DLL_EXPORT void GetCommand(int *AI_OUT)
     AI_OUT[2] = LED_1;
     AI_OUT[3] = MyState;
 }
-void TurnTo(int curRot, int targetRot)
-{
-    int p0 = targetRot;
-    int p3 = (targetRot + 3) % 360;
-    int p15 = (targetRot + 15) % 360;
-    int n3 = (targetRot - 3 + 360) % 360;
-    int n15 = (targetRot - 15 + 360) % 360;
-    int p180 = (targetRot + 180) % 360;
-    int l = 0, r = 0;
-    Dur = 6;
-    //Within(-3,+3)deg, stop turing.
-    l = n3; r = p3;
-    if ((l < r && curRot > l && curRot < r) ||
-    (l > r && (curRot > l || curRot < r)))
-    {
-        WheelLeft = 0;
-        WheelRight = 0;
-        Dur = 0;
-        return;
-    }
-    //Within[3,15]deg,Turn Slowly
-    l = p3; r = p15;
-    if ((l < r && curRot >= l && curRot <= r) ||
-        (l > r && (curRot >= l || curRot <= r)))
-    {
-        WheelLeft = 10;
-        WheelRight = -10;
-        return;
-    }
-    //Within[15,180]deg,Turn Faast
-    l = p15; r = p180;
-    if ((l < r && curRot >= l && curRot <= r) ||
-       (l > r && (curRot >= l || curRot <= r)))
-    {
-        WheelLeft = 30;
-        WheelRight = -30;
-        return;
-    }
-    //Within[-15,-3]deg,Turn Slowly
-    l = n15; r = n3;
-    if ((l < r && curRot >= l && curRot <= r) ||
-    (l > r && (curRot >= l || curRot <= r)))
-    {
-        WheelLeft = -10;
-        WheelRight = 10;
-        return;
-    }
-    //Within[-180,-15]deg,Turn Fast
-    l = p180; r = n15;
-    if ((l < r && curRot >= l && curRot <= r) ||
-    (l > r && (curRot >= l || curRot <= r)))
-    {
-        WheelLeft = -30;
-        WheelRight = 30;
-        return;
-    }
-}
+
 void GetEvent(int SuperDuration , int Duration , int EventNum)
 {
     SupDur = SuperDuration;
@@ -240,40 +185,47 @@ void DoAction(int rightWheel , int leftWheel , int led)
     WheelLeft = leftWheel;
     LED_1 = led;
 }
-void Game0()
+void Move(int TrustDistance)
 {
-    if (SupDur > 0)
-        SupDur--;
-    else if(Dur > 0)
-        Dur --;
-    else if(USFront < 12)
+    if(USFront < TrustDistance && USLeft < TrustDistance && USRight < TrustDistance)
+    {
+        DoAction(60,-60,0);
+    }
+    else if(USFront < TrustDistance)
     {
         if(USLeft > USRight)
         {
-            GetEvent(0,0,2);
+            DoAction(60,-10,0);
         }
-        else if(USLeft <= USRight)
+        else if(USRight > USLeft)
         {
-            GetEvent(0,0,3);
+            DoAction(-10,60,0);
+        }
+        else
+        {
+            DoAction(60,-60,0);
         }
     }
-    else
-        GetEvent(0,10,1);//Moving Forward Event
-    switch(CurAction)
+    else if(USFront > TrustDistance && USLeft < TrustDistance && USRight > TrustDistance)
     {
-        case 1:
-            DoAction(40,40,1);//Moving Forward Action
-            break;
-        case 2:
-            DoAction(60,-70,0);
-            break;
-        case 3:
-            DoAction(-70,60,0);
-            break;
-        default:
-            break;
+        DoAction(-10,60,0);
     }
-
+    else if(USFront > TrustDistance && USLeft < TrustDistance && USRight < TrustDistance)
+    {
+        DoAction(30,30,0);
+    }
+    else if(USFront > TrustDistance && USLeft > TrustDistance && USRight < TrustDistance)
+    {
+        DoAction(60,-10,0);
+    }
+    else if(USFront > TrustDistance && USLeft > TrustDistance && USRight > TrustDistance)
+    {
+        DoAction(60,60,1);
+    }
+}
+void Game0()
+{
+    Move(GloabalTrustDistance);
 }
 void Game1()
 {
