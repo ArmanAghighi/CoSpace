@@ -179,14 +179,11 @@ void GetEvent(int SuperDuration , int Duration , int EventNum)
     Dur = Duration;
     CurAction = EventNum;
 }
-void DoAction(int rightWheel , int leftWheel , int led)
-{
+void DoAction(int rightWheel , int leftWheel , int led){
     WheelRight = rightWheel;
     WheelLeft = leftWheel;
-    LED_1 = led;
-}
-void Move(int TrustDistance)
-{
+    LED_1 = led;}
+void Move(int TrustDistance){
     if(USFront < TrustDistance && USLeft < TrustDistance && USRight < TrustDistance)
     {
         DoAction(60,-60,0);
@@ -223,6 +220,7 @@ void Move(int TrustDistance)
         DoAction(60,60,1);
     }
 }
+
 void Game0()
 {
     Move(GloabalTrustDistance);
